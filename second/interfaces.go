@@ -20,22 +20,9 @@ type Silenced interface {
 type FamilyMember interface {
 	Nicknamed
 	Sayer
-	//PrintInChar()
 }
 
-//func (p *Person) PrintInChar() {
-//	fmt.Printf("%s: '%s'\n", p.getNickName(), p.Say())
-//}
-//
-//func (p *Child) PrintInChar() {
-//	fmt.Printf("%s: '%s'\n", p.getNickName(), p.Say())
-//}
-//
-//func (p *Dog) PrintInChar() {
-//	fmt.Printf("%s: '%s'\n", p.getNickName(), p.Say())
-//}
-
-func PrintInChar(m FamilyMember) {
+func PrintInChat(m FamilyMember) {
 	fmt.Printf("%s: '%s'\n", m.getNickName(), m.Say())
 }
 
@@ -83,9 +70,15 @@ func (p *Dog) getNickName() string {
 	return p.name
 }
 
-//func takeFM(fm *FamilyMember) {
-//	fm.
-//}
+func testChangeTakenByInter(fm FamilyMember) {
+	fmt.Printf("%s changing\n", fm.getNickName())
+
+	if p, ok := fm.(*Person); ok {
+		p.name = ""
+		p.job = ""
+		p.age = 0
+	}
+}
 
 func getFM(name string, age int, otherInf string) FamilyMember {
 	switch {
@@ -103,6 +96,8 @@ func UseEntities() {
 		var fm = getFM("132", 1, "")
 
 		switch fm.(type) {
+		case nil:
+			fmt.Println("NIL")
 		case *Person:
 			fmt.Println("Person", fm.(*Person).name)
 		case *Child:
@@ -120,6 +115,7 @@ func UseEntities() {
 		}
 
 		fmt.Println(fm)
+		fmt.Println()
 	}
 
 	{
@@ -130,7 +126,13 @@ func UseEntities() {
 		}
 
 		for _, m := range members {
-			PrintInChar(m)
+			PrintInChat(m)
+			testChangeTakenByInter(m)
+		}
+		fmt.Println()
+
+		for _, m := range members {
+			PrintInChat(m)
 		}
 	}
 }

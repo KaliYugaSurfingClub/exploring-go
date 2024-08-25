@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"vk_old/second"
+	"vk_old/fourth"
 	//for init only
 	//_ "vk_old/second"
 )
@@ -12,5 +12,5 @@ func init() {
 }
 
 func main() {
-	second.UseEntities()
+	fourth.HttpMyExampleRace()
 }
