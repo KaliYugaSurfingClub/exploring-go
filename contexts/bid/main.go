@@ -29,29 +29,30 @@ type Lot struct {
 	MaxPrice int
 	MaxBids  int
 
-	CurrentBid Bid
-	startPrice int
-	currentCnt int
+	LastBid    *Bid
+	StartPrice int
+	CurrentCnt int
 }
 
 func (b *Lot) GetLastBid() int {
-	//b.Lock()
-	//defer b.Unlock()
+	if b.LastBid == nil {
+		return b.StartPrice
+	}
 
-	return b.CurrentBid.Value
+	return b.LastBid.Value
 }
 
-func (b *Lot) SetNewBid(newBid Bid) bool {
+func (b *Lot) SetNewBid(newBid *Bid) bool {
 	b.Lock()
 	defer b.Unlock()
 
 	if newBid.Value > b.GetLastBid() {
 		fmt.Printf("new bid: %+v\n", newBid)
 
-		b.CurrentBid = newBid
-		b.currentCnt++
+		b.LastBid = newBid
+		b.CurrentCnt++
 
-		if b.MaxBids <= b.currentCnt {
+		if b.MaxBids <= b.CurrentCnt {
 			println("finish by count")
 			return true
 		}
@@ -69,7 +70,7 @@ const (
 	AvgBidStep = 100
 )
 
-func makeBid(ctx context.Context, playerID int, lot *Lot, bids chan<- Bid) {
+func makeBid(ctx context.Context, playerID int, lot *Lot, bids chan<- *Bid) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -80,15 +81,15 @@ func makeBid(ctx context.Context, playerID int, lot *Lot, bids chan<- Bid) {
 		select {
 		case <-ctx.Done():
 			return
-		case bids <- Bid{PlayerID: playerID, Value: lot.GetLastBid() + 2*rand.Intn(AvgBidStep)}:
+		case bids <- &Bid{PlayerID: playerID, Value: lot.GetLastBid() + 2*rand.Intn(AvgBidStep)}:
 		default:
 		}
 	}
 }
 
 func main() {
-	lot := &Lot{MaxBids: 100, MaxPrice: 10000, MaxTime: time.Second * 10, CurrentBid: Bid{PlayerID: 0, Value: 0}}
-	bids := make(chan Bid)
+	lot := &Lot{MaxBids: 100, MaxPrice: 10000, MaxTime: time.Second * 10}
+	bids := make(chan *Bid)
 	ctx, finish := context.WithTimeout(context.Background(), lot.MaxTime)
 
 	for i := 0; i < 5; i++ {
